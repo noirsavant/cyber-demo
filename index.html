@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 <title>Mini Game</title>
 
 <style>
 body {
     margin: 0;
+    min-height: 100vh;
     font-family: Orbitron, sans-serif;
 color: white;
     text-align: center;
@@ -17,11 +19,18 @@ color: white;
 .screen {
     display: none;
     padding: 40px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .active {
-    display: block;
-}
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;}
 
 button {
     padding: 12px 24px;
